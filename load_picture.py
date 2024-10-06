@@ -1,3 +1,5 @@
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy import Engine
 from sqlmodel import Session, SQLModel, create_engine
 import numpy as np
 import pandas as pd
@@ -5,11 +7,6 @@ from api.models.frame import Frame
 from api.settings import Settings
 
 
-settings = Settings()
-
-engine = create_engine(settings.database_url)
-
-SQLModel.metadata.create_all(engine)
 
 
 def resize_image(frame, original_width=200, target_width=150):
@@ -32,7 +29,7 @@ def resize_image(frame, original_width=200, target_width=150):
     return frame[indices].tolist()
 
 
-def store_frames_sqlmodel(file_path):
+def store_frames_sqlmodel(file_path: str, engine: Engine) -> None:
     """
     Reads a CSV file, resizes the frames, and stores them in the database.
 
@@ -46,16 +43,21 @@ def store_frames_sqlmodel(file_path):
     data = pd.read_csv(file_path)
     data_cleaned = data.fillna(0)
 
-    with Session(engine) as session:
-        for _, row in data_cleaned.iterrows():
-            depth = row["depth"]
-            frame = row.iloc[1:].values.astype(np.uint8)
-            resized_frame = resize_image(frame)
-            frame_record = Frame(depth=depth, frame=resized_frame)
-            session.add(frame_record)
-
-        session.commit()
+    try:
+        with Session(engine) as session:
+            for _, row in data_cleaned.iterrows():
+                depth = row["depth"]
+                frame = row.iloc[1:].values.astype(np.uint8)
+                resized_frame = resize_image(frame)
+                frame_record = Frame(depth=depth, frame=resized_frame)
+                session.add(frame_record)
+            session.commit()
+    except IntegrityError:
+        print("Image already in database")
 
 
 if __name__ == "__main__":
-    store_frames_sqlmodel("img.csv")
+    settings = Settings()
+    engine = create_engine(settings.database_url)
+    SQLModel.metadata.create_all(engine)
+    store_frames_sqlmodel("img.csv", engine)

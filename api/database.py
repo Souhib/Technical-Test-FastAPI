@@ -16,8 +16,9 @@ def create_app_engine() -> Engine:
         Engine: The created SQLAlchemy engine instance.
     """
     settings = Settings()
+    print("DATABASE URL : ", settings.database_url)
     engine = create_engine(
-        settings.database_url, connect_args={"check_same_thread": False}, echo=True
+        settings.database_url, connect_args={"check_same_thread": False} if "sqlite" in settings.database_url else {}, echo=True
     )
     return engine
 

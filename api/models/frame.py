@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Self
-from pydantic import model_validator
+from uuid import uuid4, UUID
+from pydantic import model_validator, ConfigDict
 from sqlalchemy import JSON, Column
 from sqlmodel import Field
 
@@ -34,8 +35,9 @@ class Frame(DBModel, table=True):
         depth (float): The depth of the frame. Primary key.
         frame (list[float]): The frame data stored as a list of floats.
     """
-
-    depth: float = Field(primary_key=True)
+    model_config = ConfigDict(extra="forbid", validate_assignment=True, arbitrary_types_allowed=True)  # type: ignore    
+    id: UUID | None = Field(default_factory=uuid4, primary_key=True, unique=True)
+    depth: float
     frame: list[float] = Field(sa_column=Column(JSON))
 
 
@@ -49,7 +51,7 @@ class FrameQuery(DBModel):
         colormap (ColorMap): The colormap to apply to the frames.
 
     Methods:
-        check_that_at_least_one_param_is_set: Validates the query parameters.
+        check_depth_is_valid: Validates the query parameters.
     """
 
     depth_min: float
@@ -57,7 +59,7 @@ class FrameQuery(DBModel):
     colormap: ColorMap
 
     @model_validator(mode="after")
-    def check_that_at_least_one_param_is_set(self) -> Self:
+    def check_depth_is_valid(self) -> Self:
         """
         Validates the query parameters to ensure they are within valid ranges and correctly ordered.
 
