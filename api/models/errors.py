@@ -14,6 +14,7 @@ class BaseError(Exception):
         self.status_code = status_code
         super().__init__(self.message)
 
+
 class NoFramesFound(BaseError):
     """
     Exception raised when no frames are found within a specified depth range.

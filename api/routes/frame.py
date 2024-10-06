@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Query
 
 from api.controllers.frame import FrameController
 from api.dependencies import get_frame_controller
-from api.models.frame import Frame, FrameQuery, FrameView
+from api.models.frame import FrameQuery
 
 router = APIRouter(
     prefix="/frames",

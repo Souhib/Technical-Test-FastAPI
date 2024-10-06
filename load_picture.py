@@ -11,6 +11,7 @@ engine = create_engine(settings.database_url)
 
 SQLModel.metadata.create_all(engine)
 
+
 def resize_image(frame, original_width=200, target_width=150):
     """
     Resizes a given frame to a target width while maintaining the original aspect ratio.
@@ -30,6 +31,7 @@ def resize_image(frame, original_width=200, target_width=150):
     indices = np.linspace(0, original_width - 1, num=target_width, dtype=int)
     return frame[indices].tolist()
 
+
 def store_frames_sqlmodel(file_path):
     """
     Reads a CSV file, resizes the frames, and stores them in the database.
@@ -46,7 +48,7 @@ def store_frames_sqlmodel(file_path):
 
     with Session(engine) as session:
         for _, row in data_cleaned.iterrows():
-            depth = row['depth']
+            depth = row["depth"]
             frame = row.iloc[1:].values.astype(np.uint8)
             resized_frame = resize_image(frame)
             frame_record = Frame(depth=depth, frame=resized_frame)
@@ -57,4 +59,3 @@ def store_frames_sqlmodel(file_path):
 
 if __name__ == "__main__":
     store_frames_sqlmodel("img.csv")
-

@@ -5,6 +5,7 @@ from starlette.responses import JSONResponse
 from api.models.errors import BaseError
 from api.routes.frame import router as frame_router
 
+
 def create_app(lifespan) -> FastAPI:
     """
     Creates a FastAPI application with CORS middleware and routes for frame operations.

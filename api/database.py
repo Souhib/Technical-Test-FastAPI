@@ -17,9 +17,7 @@ def create_app_engine() -> Engine:
     """
     settings = Settings()
     engine = create_engine(
-        settings.database_url,
-        connect_args={"check_same_thread": False},
-        echo=True
+        settings.database_url, connect_args={"check_same_thread": False}, echo=True
     )
     return engine
 

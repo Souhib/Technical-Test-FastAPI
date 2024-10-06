@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Self
 from pydantic import model_validator
 from sqlalchemy import JSON, Column
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field
 
 from api.models.shared import DBModel
 
@@ -18,11 +18,12 @@ class ColorMap(str, Enum):
         MAGMA (str): 'magma' colormap.
         CIVIDIS (str): 'cividis' colormap.
     """
-    VIRIDIS = 'viridis'
-    PLASMA = 'plasma'
-    INFERNO = 'inferno'
-    MAGMA = 'magma'
-    CIVIDIS = 'cividis'
+
+    VIRIDIS = "viridis"
+    PLASMA = "plasma"
+    INFERNO = "inferno"
+    MAGMA = "magma"
+    CIVIDIS = "cividis"
 
 
 class Frame(DBModel, table=True):
@@ -33,6 +34,7 @@ class Frame(DBModel, table=True):
         depth (float): The depth of the frame. Primary key.
         frame (list[float]): The frame data stored as a list of floats.
     """
+
     depth: float = Field(primary_key=True)
     frame: list[float] = Field(sa_column=Column(JSON))
 
@@ -49,6 +51,7 @@ class FrameQuery(DBModel):
     Methods:
         check_that_at_least_one_param_is_set: Validates the query parameters.
     """
+
     depth_min: float
     depth_max: float
     colormap: ColorMap
@@ -61,15 +64,14 @@ class FrameQuery(DBModel):
         Raises:
             ValueError: If the depth range is invalid or the colormap is not set.
         """
-        if (self.depth_min < 9000.0 or self.depth_max > 9546.0):
+        if self.depth_min < 9000.0 or self.depth_max > 9546.0:
             raise ValueError(
                 "Min depth should be higher then 9000 and Max depth should be lower than 9546.1"
             )
         elif self.depth_min > self.depth_max:
-            raise ValueError(
-                "Min depth should be smaller than Max depth"
-            )
+            raise ValueError("Min depth should be smaller than Max depth")
         return self
+
 
 class FrameView(DBModel):
     """
@@ -79,5 +81,6 @@ class FrameView(DBModel):
         depth (float): The depth of the frame.
         frame (list[float]): The frame data stored as a list of floats.
     """
+
     depth: float
     frame: list[float]
